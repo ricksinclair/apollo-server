@@ -19,18 +19,18 @@ const typeDefs = gql`
 // Provide resolver functions for your schema fields
 const resolvers = {
   Query: {
-    links: (root, args, { models }) => {
+    links: async (root, args, { models }) => {
       return models.Link.findAll();
     }
   },
 
   Link: {
-    link: (link) => link.link,
-    slug: (link) => link.slug
+    link: async (link) => link.link,
+    slug: async (link) => link.slug
   },
 
   Mutation: {
-    createLink: (link) => {
+    createLink: async (link) => {
       let slug = uuid.v5(link, uuid.v5.URL).slice(0, 8);
       while (
         models.Link.findAll().filter((item) => item.slug === slug).length > 0
