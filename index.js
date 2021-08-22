@@ -1,33 +1,44 @@
 const { ApolloServer, gql } = require("apollo-server");
-const Sequelize = require("sequelize");
 const models = require("./models");
+const uuid = require("uuid");
 
 // Construct a schema, using GraphQL schema language
 const typeDefs = gql`
   type Query {
-    hello: String
     links: [Link]
   }
   type Link {
-    id: ID!
     link: String!
     slug: String!
   }
   type Mutation {
-    createLink(id: Int!, url: String!): Link
-    deleteLink(id: Int!): Boolean
+    createLink(url: String!): Link
   }
 `;
 
 // Provide resolver functions for your schema fields
 const resolvers = {
   Query: {
-    hello: (root, args, context) => "Hello world!"
+    links: (root, args, { models }) => {
+      return models.Link.findAll();
+    }
   },
 
   Link: {
-    link: () => "",
-    slug: () => ""
+    link: (link) => link.link,
+    slug: (link) => link.slug
+  },
+
+  Mutation: {
+    createLink: (link) => {
+      let slug = uuid.v5(link, uuid.v5.URL).slice(0, 8);
+      while (
+        models.Link.findAll().filter((item) => item.slug === slug).length > 0
+      ) {
+        slug = slug + Math.floor(Math.random() * 1000);
+      }
+      return models.Link.create({ link, slug });
+    }
   }
 };
 
