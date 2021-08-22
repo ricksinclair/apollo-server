@@ -30,14 +30,14 @@ const resolvers = {
   },
 
   Mutation: {
-    createLink: async (link) => {
-      let slug = uuid.v5(link, uuid.v5.URL).slice(0, 8);
-      while (
-        models.Link.findAll().filter((item) => item.slug === slug).length > 0
-      ) {
+    createLink: async (url) => {
+      let slug = await uuid.v4().slice(0, 8);
+
+      let results = await models.Link.findAll();
+      while (results.filter((item) => item.slug === slug).length > 0) {
         slug = slug + Math.floor(Math.random() * 1000);
       }
-      return models.Link.create({ link, slug });
+      return models.Link.create({ url, slug });
     }
   }
 };
